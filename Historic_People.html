@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Historic People Launcher</title>
+    <style>
+        body { 
+            background: #000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .launch-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        /* Subtle "pop" when you hover over the button */
+        .launch-container:hover {
+            transform: scale(1.05);
+        }
+
+        .neon-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #01796F;
+            box-shadow: 0 0 15px #01796F, inset 0 0 15px #01796F;
+            animation: pulse 2s infinite;
+        }
+
+        /* Brighter glow when hovering */
+        .launch-container:hover .neon-ring {
+            border-color: #02a396;
+            box-shadow: 0 0 30px #02a396, inset 0 0 20px #02a396;
+            animation: none; /* Stops pulsing while hovering for a steady bright glow */
+        }
+
+        .logo-img {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            z-index: 10;
+            background: #000;
+            object-fit: cover;
+            border: 2px solid rgba(1, 121, 111, 0.3);
+        }
+
+        .app-name {
+            margin-top: 30px;
+            color: #01796F;
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px #01796F, 0 0 20px #01796F;
+            user-select: none;
+        }
+
+        .instruction {
+            margin-top: 10px;
+            color: #555;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 25px #01796F, inset 0 0 15px #01796F; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+    </style>
+
+    <script>
+        function launchApp() {
+            // This is the manual "HIT" logic
+            // While offline, use "index.html". 
+            // When GitHub is ready, change to your full URL.
+            window.location.href = "index.html"; 
+        }
+    </script>
+</head>
+<body>
+
+    <div class="launch-container" onclick="launchApp()">
+        <div class="neon-ring"></div>
+        <img src="logo_gold.png" class="logo-img" alt="Lingua Pharmacia Logo">
+    </div>
+
+    <div class="app-name">HISTORIC PEOPLE</div>
+    <div class="instruction">Click to Enter</div>
+
+</body>
+</html>
