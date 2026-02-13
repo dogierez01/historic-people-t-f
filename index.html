@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historic People T/F</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #e0e0e0; margin: 0; padding: 0; }
+        #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; transition: opacity 0.8s ease; }
+        #header-area { position: fixed; top: 0; width: 100%; background: #000; border-bottom: 1px solid #333; z-index: 100; padding: 10px 0; text-align: center; }
+        #app-title { font-weight: 900; color: #fff; margin-bottom: 10px; }
+        .toggle-btn { padding: 8px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; color: #888; background: #222; margin: 0 5px; }
+        .toggle-btn.active { color: #fff; }
+        
+        /* Updated to Pine Green */
+        #btn-learn.active { background: #01796F; }
+        #btn-quiz.active { background: #9C27B0; }
+        
+        #content-area { padding: 20px; padding-top: 140px; max-width: 600px; margin: 0 auto; }
+        .card { background: #1e1e1e; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #333; }
+        .card-title { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 10px; }
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 200; overflow-y: auto; }
+        #modal-content { padding: 20px; max-width: 600px; margin: 0 auto; padding-top: 60px; }
+        #close-btn { position: fixed; top: 20px; right: 20px; font-size: 30px; cursor: pointer; color: white; z-index: 300; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        /* Updated Title to Pine Green */
+        #story-title { font-size: 28px; color: #01796F; margin-bottom: 20px; text-align: center; font-weight: 900; }
+        
+        #story-text { font-size: 18px; line-height: 1.6; color: #ddd; text-align: justify; margin-bottom: 30px; }
+        .quiz-q { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; }
+        .btn-tf { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+        .btn-true { background: #2ecc71; color: white; } 
+        .btn-false { background: #e74c3c; color: white; }
+        .feedback { margin-top: 10px; font-weight: bold; }
+        #audio-bar { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; }
+        #player { height: 40px; width: 70%; }
+        #btn-snail { background: #333; color: white; border: none; font-size: 24px; padding: 5px 15px; border-radius: 10px; cursor: pointer; }
+        
+        /* Updated Snail to Pine Green */
+        #btn-snail.active { background: #01796F; }
+    </style>
+</head>
+<body>
+
+<div id="welcome-screen">
+    <img src="welcome.png" style="width:98%; max-width:800px; max-height:65vh; border-radius:15px; object-fit: contain;">
+    <button onclick="startApp()" style="margin-top:25px; padding:15px 60px; font-size:24px; font-weight:bold; background:#01796F; color:white; border:none; border-radius:50px; cursor:pointer;">BAŞLA</button>
+</div>
+
+<div id="header-area">
+    <div id="app-title">📜 HISTORIC PEOPLE</div>
+    <div>
+        <button id="btn-learn" class="toggle-btn active" onclick="setMode('learn')">📖 Learn</button>
+        <button id="btn-quiz" class="toggle-btn" onclick="setMode('quiz')">🧠 Quiz</button>
+    </div>
+    <div id="audio-bar">
+        <audio id="player" controls></audio>
+        <button id="btn-snail" onclick="toggleSnail()">🐌</button>
+    </div>
+</div>
+
+<div id="content-area"><div id="list"></div></div>
+
+<div id="modal">
+    <div id="close-btn" onclick="closeModal()">✕</div>
+    <div id="modal-content">
+        <div id="story-title"></div>
+        <div id="view-learn"><div id="story-text"></div></div>
+        <div id="view-quiz" style="display:none;"><div id="quiz-area"></div></div>
+    </div>
+</div>
+
+<script>
+    const list = document.getElementById('list');
+    const modal = document.getElementById('modal');
+    const player = document.getElementById('player');
+    const snailBtn = document.getElementById('btn-snail');
+    let currentMode = 'learn'; 
+    let isSlowMode = false;
+
+    const db = [
+        {
+            title: "Alexander the Great",
+            text: "Alexander was born in 356 BC in Pella, the capital of Macedon. His mother, Olympia, was a strong and mysterious woman. She prayed to snakes and kept many of them in the palace. Alexander grew up with these snakes. Poisonous snakes bit him, so his body became strong against poison. His father, King Philip II, was a very strict ruler. One night, he punished Alexander very badly. This difficult event helped make Alexander a fearless and strong man. Even as a young man, Alexander was special. He did not have a beard. He ordered all his soldiers to shave their faces, too. This rule for soldiers is still used today. He was a student of the famous teacher Aristotle. He learned about war and how to lead an army. He became a commander when he was still a teenager. Alexander wanted to conquer the whole world. He took control of many huge lands like Persia and Egypt. He even traveled as far as India. His army grew bigger and stronger. However, great power brought danger. When he was at the River Indus, his own generals turned against him. They poisoned him because they were tired of fighting. They wanted to stop and return to their homes and families.",
+            questions: [
+                { q: "Alexander was born in the capital of Macedon.", a: true },
+                { q: "Alexander's immunity to poison was a genetic gift from his mother.", a: false },
+                { q: "King Philip II's strict punishment helped Alexander become fearless.", a: true },
+                { q: "Alexander ordered his soldiers to grow long beards for battle.", a: false },
+                { q: "He was a student of the famous philosopher Aristotle.", a: true },
+                { q: "Alexander died of old age after returning from India.", a: false }
+            ]
+        },
+        {
+            title: "Baltacı Mehmet Pasha",
+            text: "Baltacı Mehmet Pasha was an Ottoman grand vizier in the early 18th century. He is best known for his role in the Prut War between the Ottoman Empire and Russia in 1711. At that time, Russia was growing stronger under Tsar Peter the Great. The Ottomans, with the help of the Crimean Tatars, marched to stop them. Baltacı Mehmet Pasha led the Ottoman army to the Prut River, where they surrounded the Russian forces. The Russians were trapped, hungry, and weak. It seemed that the Ottomans were ready for a great victory. Although the army had the chance to destroy the Russians, Baltacı Mehmet Pasha accepted peace. With the Treaty of Prut, Russia gave back the city of Azov and promised to stay away from Ottoman lands. Peter the Great and his army were allowed to leave safely. Some people praised Baltacı Mehmet Pasha for avoiding more bloodshed. Others blamed him for not using the chance to defeat Russia completely. After this, his career lost strength, but the Treaty of Prut remained an important event in Ottoman history.",
+            questions: [
+                { q: "The Prut War took place in the early 18th century.", a: true },
+                { q: "The Ottoman army was supported by Crimean Tatars in this war.", a: true },
+                { q: "Baltacı Mehmet Pasha was defeated by Peter the Great at the Prut River.", a: false },
+                { q: "The Treaty of Prut forced Russia to return the city of Azov.", a: true },
+                { q: "Baltacı Mehmet Pasha destroyed the Russian army completely.", a: false },
+                { q: "Some people criticized the Pasha for not finishing the victory.", a: true }
+            ]
+        },
+        {
+            title: "Baybars",
+            text: "Baybars was born in Central Asia around 1223. When he was a young boy, enemies captured him and sold him as a slave. He traveled to Egypt to become a Mamluk. Mamluks were special soldier-slaves who went to strict military schools to learn fighting. Baybars trained very hard with horses and weapons. He was smart and strong, so he quickly became an important commander. At this time, a dangerous army called the Mongols was attacking the Middle East. They destroyed many cities and never lost a big battle. In 1260, the Mongols tried to enter Egypt. Baybars met them at a place called Ain Jalut. He used a clever plan to win. He led a small attack and then pretended to run away in fear. The Mongols chased him into a valley without looking carefully. Suddenly, the rest of the Mamluk army appeared from their hiding places. The trap worked perfectly, and they defeated the Mongol army. This victory was very important because it stopped the Mongols from taking the region. Soon after, Baybars became the Sultan of Egypt and Syria. He was a good ruler. He built bridges, canals, and roads to help people travel. He also made a fast mail system using horses. Today, history remembers Baybars as a great leader who protected his people.",
+            questions: [
+                { q: "Baybars was originally sold as a slave before becoming a Mamluk.", a: true },
+                { q: "The Mamluks were special soldier-slaves trained in Egypt.", a: true },
+                { q: "The Mongols had a long history of losing big battles before 1260.", a: false },
+                { q: "Baybars defeated the Mongols by using a feigned retreat trap.", a: true },
+                { q: "The Battle of Ain Jalut took place in Central Asia.", a: false },
+                { q: "As Sultan, Baybars established a fast mail system with horses.", a: true }
+            ]
+        },
+        {
+            title: "Boudica",
+            text: "Boudica was a famous warrior queen in Britain during the first century. At that time, the Roman Empire ruled parts of Britain. The Celtic tribes wanted their freedom. Roman rulers treated the Celtic people harshly. After Boudica's husband, King Prasutagus, died, the Romans took his lands and property. They beat Boudica and attacked her daughters. These cruel actions made Boudica very angry. She decided to fight against Roman rule. Boudica gathered warriors from different Celtic tribes. She became their leader. They attacked Roman towns and forts across eastern Britain. Their most important victories destroyed the cities of Camulodunum, Londinium, and Verulamium. The Roman governor Suetonius led a large army to stop Boudica. At the final battle in 61 AD, the Roman army defeated Boudica's forces, although her army was much larger. The exact details of Boudica's death remain unknown. Some stories say she got ill and died. Other stories say she committed suicide to avoid capture.",
+            questions: [
+                { q: "Boudica was a queen of the Roman Empire.", a: false },
+                { q: "The Romans attacked Boudica and her family after her husband died.", a: true },
+                { q: "Boudica's warriors destroyed the city of Londinium.", a: true },
+                { q: "Governor Suetonius led the Roman forces against her.", a: true },
+                { q: "Boudica won the final battle in 61 AD because her army was larger.", a: false },
+                { q: "History is certain that Boudica died in battle.", a: false }
+            ]
+        },
+        {
+            title: "Cezzar Ahmed Pasha",
+            text: "Cezzar Ahmed Pasha was the Ottoman governor of Acre, a fortress city on the eastern Mediterranean coast. He became famous in 1799, when Napoleon Bonaparte, after conquering Egypt, marched into Syria and attacked Acre. Napoleon was one of the most brilliant generals of his time. He believed Acre would open the road for him to enter Anatolia and perhaps challenge the Ottoman Empire itself. With modern cannons and a strong army, he began a long siege. Although Napoleon’s army was powerful and had won many victories before, Acre did not fall. Cezzar Ahmed Pasha defended the city with courage and discipline. He was supported by British ships under Admiral Sidney Smith, who gave him weapons and naval help. For two months, Napoleon’s forces tried again and again, but the walls of Acre resisted. At last, Napoleon abandoned the siege and returned to Egypt. This failure damaged his reputation and stopped his dreams in the East. Cezzar Ahmed Pasha became a hero of the Ottoman Empire, remembered as the man who stopped Napoleon at the gates of Acre.",
+            questions: [
+                { q: "Napoleon attacked Acre as part of his campaign to enter Anatolia.", a: true },
+                { q: "Acre was a fortress city located in Egypt.", a: false },
+                { q: "Cezzar Ahmed Pasha received naval help from the British.", a: true },
+                { q: "The siege of Acre lasted for over a year.", a: false },
+                { q: "Napoleon's reputation was damaged by his failure to take the city.", a: true },
+                { q: "Cezzar Ahmed Pasha surrendered the city after two months.", a: false }
+            ]
+        },
+        {
+            title: "El Cid",
+            text: "Rodrigo Diaz de Vivar was born in 1043 near Burgos in Christian Spain. His nickname, 'El Cid,' comes from the Arabic word El Seyit, meaning respected. He grew up as a skilled warrior and served King Sancho II of Castile. He supported the new ruler, King Alfonso VI. But political fights soon made him lose favor. He was accused of treachery and sent into exile. Although he had to leave his king, Rodrigo gathered loyal soldiers and fought to survive. He often worked with Muslim rulers and fought for them when it helped his cause. His respect for Muslim soldiers and leaders made him different from other Christian knights of his time. The most important moment in his life came in 1094, when he took the city of Valencia. Many Muslim families still lived there, and Rodrigo let them stay in the city under his rule. He kept peace with nearby Muslim states and sometimes hired Muslim soldiers to fight for him. His skill in battle and understanding of Muslim customs helped him keep Valencia safe from both Christian and Muslim enemies. Rodrigo continued to defend the city until he died in 1099. His life shows that his Islamic connections, alliances, and respect for Muslim culture were important for his success.",
+            questions: [
+                { q: "The nickname 'El Cid' is derived from a Spanish word for 'King'.", a: false },
+                { q: "Rodrigo was sent into exile after being accused of treachery.", a: true },
+                { q: "He strictly refused to work with Muslim rulers during his exile.", a: false },
+                { q: "El Cid captured the city of Valencia in 1094.", a: true },
+                { q: "He allowed Muslim families to stay in Valencia under his rule.", a: true },
+                { q: "Rodrigo died while attempting to escape from Valencia.", a: false }
+            ]
+        },
+        {
+            title: "Fahrettin Pasha",
+            text: "Fahrettin Pasha, known as the 'Desert Tiger,' was one of the bravest commanders of the Ottoman Empire. During World War I, in 1916, he was sent to defend the holy city of Medina. His mission was to protect the city against the Arab revolt supported by the British. The famous British spy, Lawrence of Arabia, destroyed the Hejaz Railway and cut Medina off from the world. Food and water became very scarce. Soldiers and people even ate locusts to survive. Still, Fahrettin Pasha never gave up. He sent the holy relics to Istanbul for safety and refused to surrender, saying: 'I will not lower the Turkish flag with my own hands!'. Even after the war ended, he resisted, but was finally forced to give up by his own officers. As he left Medina, he cried: 'O Messenger of God, they are taking me by force!'. Later, he was sent into exile in Egypt and Malta. In 1921, he was freed and joined the Turkish War of Independence. After victory, he became the first ambassador of the new Republic of Turkey in Afghanistan. Fahrettin Pasha died in 1948, but his courage, faith, and love for his country are never forgotten.",
+            questions: [
+                { q: "Fahrettin Pasha was nicknamed the 'Desert Tiger'.", a: true },
+                { q: "He defended the city of Medina during World War I.", a: true },
+                { q: "Lawrence of Arabia helped repair the Hejaz Railway for the Ottomans.", a: false },
+                { q: "Ottoman soldiers in Medina had to eat locusts to survive.", a: true },
+                { q: "Fahrettin Pasha surrendered Medina the moment the war ended.", a: false },
+                { q: "He served as Turkey's first ambassador to Afghanistan.", a: true }
+            ]
+        },
+        {
+            title: "Gavrilo Princip",
+            text: "Gavrilo Princip was a young man from Serbia, born in 1894. He lived in Bosnia when it was ruled by the Austro-Hungarian Empire. As a student, he strongly wanted freedom for Slavic peoples. In 1914, something very important happened. Archduke Franz Ferdinand, the next leader of Austria-Hungary, visited Sarajevo. Princip and his friends from a secret group wanted to kill him. Their first plan with a bomb did not work. Later that day, Princip saw the Archduke's car by accident. The driver had made a wrong turn and stopped near him. Princip walked to the car and shot the Archduke and his wife. Both died from their injuries. The police caught Princip right away. Because he was under 20, he could not receive the death penalty. He was sent to prison, where he became sick and died in 1918. The killing of Archduke Franz Ferdinand started a major conflict. Austria-Hungary declared war on Serbia. This led other countries to join the fight, beginning the First World War. People still disagree about Gavrilo Princip today. Some call him a terrorist who caused a terrible war. Others see him as a patriot who fought for his people's freedom.",
+            questions: [
+                { q: "Princip was born in Bosnia during the Ottoman era.", a: false },
+                { q: "The initial assassination plan involved a bomb.", a: true },
+                { q: "Princip found the Archduke's car by accident after a wrong turn.", a: true },
+                { q: "Princip was executed by the state for his crime.", a: false },
+                { q: "The assassination triggered the start of World War I.", a: true },
+                { q: "Princip died in prison in 1918.", a: true }
+            ]
+        },
+        {
+            title: "Gazi Osman Pasha",
+            text: "Gazi Osman Pasha was a great Ottoman commander of the 19th century. He became famous during the Russo-Turkish War of 1877-1878 for defending the town of Plevna in Bulgaria. In July 1877, Russian and Romanian armies attacked Plevna. Osman Pasha quickly organized the defenses and built strong trenches around the town. His clever tactics helped the Ottomans, who had a smaller army, to win several battles. People in Europe admired his courage and military skill. For five months, his army resisted one of the biggest forces in Europe. Although his soldiers were tired and food and ammunition became less, Osman Pasha did not want to surrender. In December 1877, when there was no food or ammunition left, Osman Pasha tried to attack the enemy. He was wounded and captured... but the Russians respected him and treated him with dignity. After the war, Osman Pasha returned to Istanbul as a hero and was given the title 'Gazi.' His defense of Plevna is still remembered as a great moment in Ottoman history.",
+            questions: [
+                { q: "Osman Pasha is famous for his defense of Plevna in Bulgaria.", a: true },
+                { q: "The defense of Plevna lasted for exactly one month.", a: false },
+                { q: "The Ottoman army at Plevna was larger than the attacking forces.", a: false },
+                { q: "Osman Pasha was captured after being wounded in an attack.", a: true },
+                { q: "The Russians treated the captured Pasha with disrespect.", a: false },
+                { q: "He received the title 'Gazi' upon his return to Istanbul.", a: true }
+            ]
+        },
+        {
+            title: "Halil Pasha",
+            text: "The Siege of Kut al-Amara was one of the greatest Ottoman victories in World War I. It took place in Mesopotamia, today's Iraq, between December 1915 and April 1916. A British army of about 13,000 soldiers, led by General Townshend, entered the town of Kut after a defeat at Ctesiphon. The Ottomans, under the command of Halil Pasha, surrounded the town and cut off supplies. The British hoped that new troops would arrive to save them, but Ottoman forces stopped every attempt. Although the British army was better equipped, hunger and disease became stronger enemies inside the town. After 147 days of resistance, General Townshend surrendered on 29 April 1916. More than 13,000 British and Indian soldiers were taken as prisoners. This victory gave the Ottoman Empire great pride. It showed that the empire could still fight strongly against a world power. For the British, it was one of the worst defeats in their military history. For the Ottomans, Kut al-Amara became a symbol of courage and resistance in the dark days of World War I.",
+            questions: [
+                { q: "The Siege of Kut al-Amara took place in modern-day Turkey.", a: false },
+                { q: "General Townshend led the British forces at Kut.", a: true },
+                { q: "The siege lasted for a total of 147 days.", a: true },
+                { q: "British supplies were cut off by Halil Pasha's forces.", a: true },
+                { q: "The British surrendered because their new troops were too slow to fight.", a: false },
+                { q: "Over 13,000 soldiers were taken prisoner by the Ottomans.", a: true }
+            ]
+        },
+        {
+            title: "Isabella and Ferdinand",
+            text: "Isabella of Castile and Ferdinand of Aragon were the famous Catholic Monarchs of Spain. They married in 1469, uniting two powerful kingdoms. Together, they worked to create a strong and united Spain. Their most famous goal was the Reconquista, the long struggle to take back Iberia from Muslim rule. For centuries, Muslims had controlled large parts of Spain. In 1492, Isabella and Ferdinand's armies captured Granada, the last Muslim kingdom in Iberia. This victory ended hundreds of years of conflict. Although many Muslims and Jews had lived peacefully in Spain, the monarchs wanted only Christianity to remain. They ordered Muslims and Jews to convert or leave the country. Many families lost their homes and were forced to start new lives elsewhere. The same year, Isabella and Ferdinand also supported Christopher Columbus's voyage. This journey led to the discovery of the Americas by Europeans and the beginning of Spain's overseas empire. Isabella and Ferdinand changed the history of Spain forever. They built a strong monarchy, spread Christianity, and opened the way for Spanish power around the world. For some, they are great rulers, but for others, their rule is remembered with pain because of the removal of Muslims and Jews.",
+            questions: [
+                { q: "Isabella and Ferdinand united the kingdoms of Castile and Aragon.", a: true },
+                { q: "The 'Reconquista' was a struggle to expand Muslim rule in Spain.", a: false },
+                { q: "Granada was the last Muslim kingdom to fall in 1492.", a: true },
+                { q: "Muslims and Jews were allowed to keep their homes without converting.", a: false },
+                { q: "The monarchs supported Christopher Columbus in the same year Granada fell.", a: true },
+                { q: "Their rule led to the beginning of Spain's overseas empire.", a: true }
+            ]
+        },
+        {
+            title: "Jacobi",
+            text: "Jacobi was born in a poor Jewish village near Genoa. From a young age he showed intelligence and skill in medicine. He studied herbs, medicines, and poisons in Italian cities. Venice and the Vatican noticed him and supported his studies, seeing him as useful for their secret plans. He became a skilled physician, respected for his knowledge and precision. When the Ottomans rose and Mehmed II captured Constantinople, Venice and the Church feared his power. Jacobi was sent east under the name Yakup. He entered the Ottoman palace and served with care. He treated soldiers and advised pashas. Mehmed trusted him and made him head physician. To the sultan, he seemed loyal, but some whispered that he still served Venice and the Vatican. In 1481, Mehmed prepared for a new campaign. Soon he fell ill. Yakup gave him medicine, and the sultan died. Suspicion fell on Yakup. Some said palace guards killed him; others said he fled but was captured. Jacobi, who had risen from poverty to the highest position in the Ottoman court, ended his life in mystery.",
+            questions: [
+                { q: "Jacobi was originally from a wealthy family in Venice.", a: false },
+                { q: "He was an expert in herbs, medicines, and poisons.", a: true },
+                { q: "Jacobi served in the Ottoman palace under the name Yakup.", a: true },
+                { q: "Sultan Mehmed II appointed him as the head physician.", a: true },
+                { q: "Mehmed II died shortly after Yakup gave him medicine.", a: true },
+                { q: "It is a proven historical fact that Yakup escaped back to Genoa.", a: false }
+            ]
+        },
+        {
+            title: "Koca Sinan Pasha",
+            text: "In 1595, the Ottoman leader Koca Sinan Pasha led an army into Wallachia, which is now Romania. He fought against a rebel prince named Michael the Brave. The Ottomans captured the main city, but winter was coming. The army needed to return to safety. Sinan Pasha ordered his soldiers to retreat to the Danube River. To cross the wide river, the army used a long wooden bridge at Giurgiu. The crossing was very slow. The soldiers carried heavy carts filled with treasure and goods. This delayed everyone. Sinan Pasha and the main army crossed first. He left the famous 'Akıncı' warriors at the back to guard the bridge. Suddenly, Michael the Brave arrived with his cannons. He saw the army was split in two. He fired directly at the bridge. The wood broke, and the bridge collapsed into the water. The Akıncı warriors were trapped on the wrong side. They could not escape the enemy or the deep river. Thousands of Akıncı soldiers died that day. Before this event, they were the most famous riders in the Ottoman army. Because of this single disaster, the Akıncı lost their strength and never recovered. In history, this sad event is called the 'Bridge Disaster.'",
+            questions: [
+                { q: "Sinan Pasha fought against Michael the Brave in Romania.", a: true },
+                { q: "The Ottoman retreat was delayed by heavy carts of treasure.", a: true },
+                { q: "Sinan Pasha stayed at the back of the bridge with the Akıncı.", a: false },
+                { q: "Michael the Brave destroyed the wooden bridge with cannons.", a: true },
+                { q: "The Akıncı warriors successfully swam across the Danube.", a: false },
+                { q: "The Akıncı unit never fully recovered from the 'Bridge Disaster'.", a: true }
+            ]
+        },
+        {
+            title: "Mezamorta Hüseyin Pasha",
+            text: "Mezamorta Hüseyin Pasha was a famous Ottoman admiral born in the 17th century. Some people say he was originally from Spain and later became a Muslim. He started his career as a sailor and a pirate in the Mediterranean Sea. His interesting nickname, 'Mezamorta,' means 'half-dead' in Italian. In a big battle against the Venetians, he was hurt very badly. His enemies thought he was dead, but he survived. Because of this amazing event, he got his famous name. By 1674, he was a captain and attacked many enemy ships. In 1683, the French navy attacked Algiers. The leader of Algiers wanted to give up, but Mezamorta refused. He became the new ruler and defended the city. To show his strength, he put the French consul into a large cannon and fired him at the enemy ships. This stopped the French attack. Later, he attacked the French coast until they agreed to peace. Later, Mezamorta went to Istanbul to join the Ottoman navy. In 1695, he won back Chios Island from the Venetians. Because of this victory, the Sultan made him the Grand Admiral, or 'Kapudan Pasha.' He changed how the navy fought. He stopped using old rowing ships and started using big sailing ships called 'kalyons.' Mezamorta died from an illness in 1701 while getting ready for a new war.",
+            questions: [
+                { q: "Mezamorta means 'half-dead' in the Italian language.", a: true },
+                { q: "He started his career as a pirate in the Mediterranean.", a: true },
+                { q: "He defended Algiers by firing a French consul from a cannon.", a: true },
+                { q: "He became Kapudan Pasha after losing Chios Island.", a: false },
+                { q: "He transitioned the Ottoman navy from rowing ships to sailing 'kalyons'.", a: true },
+                { q: "Mezamorta was killed in a battle against the French coast.", a: false }
+            ]
+        },
+        {
+            title: "Mir Ali Beg",
+            text: "In the late 1500s, Portugal controlled East African cities like Mombasa. They used these ports for trade. The local people disliked Portuguese rule and requested help from the Ottoman Empire. The Ottomans wanted to stop Portuguese power in the region. An Ottoman captain, Mir Ali Beg, arrived to fight. Cities on the coast supported him with supplies. He captured Portuguese ships and built a small castle in Mombasa. The Portuguese sent a large fleet to destroy him. In 1589, Portuguese ships attacked Mombasa with heavy guns. Suddenly, a group of warriors called the Zimba attacked from the land. The Zimba were cannibals. During the battle, they caught and ate Ottoman soldiers. The city faced attacks from both sides at the same time. Mir Ali Beg tried to escape, but the Portuguese captured him. They sent him to Portugal as a prisoner. He lived there for the rest of his life. This battle ended the Ottoman attempts to control East Africa. After this defeat, the Ottoman Empire did not try to take power in this region again.",
+            questions: [
+                { q: "Local people in Mombasa asked the Ottomans for help against Portugal.", a: true },
+                { q: "Mir Ali Beg built a castle in Portugal to launch his attacks.", a: false },
+                { q: "The Zimba were cannibal warriors who attacked from the land.", a: true },
+                { q: "The Ottoman soldiers were caught and eaten by the Zimba during the battle.", a: true },
+                { q: "Mir Ali Beg died during the heavy gun attack from the ships.", a: false },
+                { q: "The defeat at Mombasa ended Ottoman influence in East Africa.", a: true }
+            ]
+        },
+        {
+            title: "Mustafa the Second",
+            text: "In 1695, Sultan Mustafa the second became the Ottoman leader. He wanted to make the empire powerful again and gathered 100,000 soldiers to attack Austria. However, the Austrian general, Prince Eugene of Savoy, was very clever. He had spies inside the Ottoman army who told him exactly where the Sultan planned to cross the Tisa River. At the river, the Ottoman leaders made a terrible mistake. Greedy commanders, called Pashas, stopped the soldiers at the narrow bridge. They demanded money from their own men before allowing them to cross. This caused a long delay. Prince Eugene saw the confusion and attacked with heavy cannons. The bridge broke, and thousands of soldiers died in the water while the Sultan watched helplessly from the other side. The results were a disaster. The Ottomans lost 30,000 men, valuable treasure, and the Sultan’s official seal. Sultan Mustafa was heartbroken and never led an army again. In 1699, the empire signed the Treaty of Karlowitz and lost a large amount of land.",
+            questions: [
+                { q: "Sultan Mustafa II attacked Austria with an army of 100,000 men.", a: true },
+                { q: "Prince Eugene of Savoy used spies to discover the Sultan's crossing point.", a: true },
+                { q: "The Ottoman soldiers were delayed because the Tisa River was too deep to swim.", a: false },
+                { q: "Greedy Pashas demanded money from soldiers at the bridge.", a: true },
+                { q: "The Sultan lost his official seal during the disaster at the river.", a: true },
+                { q: "After the defeat, Sultan Mustafa II led another successful campaign in 1701.", a: false }
+            ]
+        },
+        {
+            title: "Ragnar Lodbrok",
+            text: "Ragnar Lodbrok was a famous Viking leader who lived in the 9th century. He came from Scandinavia and led many attacks on England and France. Ragnar became well known for his brave fighting and smart battle plans. Stories say he got his name 'Lodbrok' by wearing special pants to protect himself from a poisonous snake. He led many successful Viking journeys. In 845, he attacked Paris with a large group of Viking ships. The French king paid him a great amount of silver to leave the city. This made Ragnar very wealthy and increased his fame. Ragnar had several sons who also became famous Viking warriors. Their names were Ivar the Boneless, Bjorn Ironside, and Halfdan Ragnarsson. These sons later led the Great Heathen Army in England. Ragnar died during an attack on England. King Aella of Northumbria captured him and put him in a snake pit as punishment. Before he died, Ragnar said that his sons would punish King Aella for killing him. His sons kept this promise. They attacked England, captured King Aella, and killed him to avenge their father's death.",
+            questions: [
+                { q: "Ragnar Lodbrok lived during the 12th century.", a: false },
+                { q: "His nickname 'Lodbrok' refers to the special pants he wore.", a: true },
+                { q: "Ragnar captured the city of Paris and stayed there as its king.", a: false },
+                { q: "Ivar the Boneless and Bjorn Ironside were Ragnar's sons.", a: true },
+                { q: "King Aella of Northumbria executed Ragnar in a snake pit.", a: true },
+                { q: "Ragnar's sons led the Great Heathen Army to avenge their father.", a: true }
+            ]
+        },
+        {
+            title: "Rob Roy",
+            text: "Rob Roy MacGregor was a famous hero from Scotland. He lived in the Scottish Highlands from 1671 to 1734. At that time, England controlled Scotland very strongly. The English government made strict laws that were hard for Scottish families, called 'clans.' Rob Roy belonged to the MacGregor clan, which had a very difficult life because of these laws. Rob Roy began as a farmer and sold cattle. He borrowed money from a rich noble to make his business bigger. But when he could not pay the money back, the rich man took his land. Rob Roy lost everything. Because of this, he became an outlaw. He started to steal cattle from rich people and gave some to poor families. People called him the 'Scottish Robin Hood.' The English police offered money to anyone who could catch him. But Rob Roy was smart. For many years, he hid in the mountains of the Highlands.",
+            questions: [
+                { q: "Rob Roy MacGregor was an English noble who helped Scottish farmers.", a: false },
+                { q: "The MacGregor clan faced difficulties due to strict English laws.", a: true },
+                { q: "Rob Roy's first job was stealing cattle from rich nobles.", a: false },
+                { q: "He became an outlaw after losing his land over a debt.", a: true },
+                { q: "He was nicknamed the 'Scottish Robin Hood'.", a: true },
+                { q: "Rob Roy was caught by the police in his first year as an outlaw.", a: false }
+            ]
+        },
+        {
+            title: "Salahuddin Ayyubi",
+            text: "Salahuddin Ayyubi, also known as Saladin, was born in 1137 in Tikrit, Iraq. He came from a family of soldiers and learned about war when he was very young. He served his uncle, Shirkuh, who taught him how to be a leader. Later, Salahuddin became the ruler of Egypt after he won an important battle. Salahuddin had a strong faith in Islam. At that time, many Muslim rulers fought against each other. Salahuddin worked hard to stop this and bring all Muslim lands together. His main goal was to defend his people against the Crusader armies from Europe. His most famous moment happened in 1187 at the Battle of Hattin. His army won a huge victory against the Crusaders. After this battle, he captured the holy city of Jerusalem. He was a fair man. He treated the people in the city with kindness and respect. He let Christians and Jews stay in peace or leave safely if they wanted. After this victory, he protected Jerusalem from new attacks. He continued to lead his army until he died in 1193. Today, history remembers Salahuddin as a great hero who united Muslims and showed fairness to everyone.",
+            questions: [
+                { q: "Salahuddin Ayyubi was born in Tikrit, modern-day Iraq.", a: true },
+                { q: "He learned leadership from his uncle, Shirkuh.", a: true },
+                { q: "The Battle of Hattin took place in 1187.", a: true },
+                { q: "After capturing Jerusalem, Saladin forced all non-Muslims to leave.", a: false },
+                { q: "Saladin's main goal was to conquer Europe and France.", a: false },
+                { q: "He is remembered for uniting Muslim lands and his fairness.", a: true }
+            ]
+        },
+        {
+            title: "Skanderbeg",
+            text: "Skanderbeg, whose real name was Gjergj Kastrioti, is known as the national hero of Albania. He lived in the 15th century and became famous for his bravery and leadership. As a child, he was taken by the Ottoman Empire and trained as a soldier. He served the Ottomans for many years, but in 1443 he returned to Albania and started a great revolt for freedom. He raised the flag with the double-headed eagle, which is still the symbol of Albania today. With his army, Skanderbeg fought many battles against the powerful Ottoman forces. Although his army was small, he used clever tactics and the knowledge he gained from his years with the Ottomans. For more than 20 years, he protected Albania and inspired Christian Europe with his courage. Skanderbeg became a symbol of resistance. European leaders respected him, and the Pope called him the 'Athlete of Christ.' His victories showed that a small nation could stand strong against a great empire. Skanderbeg died in 1468, but his legend lived on. For Albanians, he is not only a warrior but also the father of their nation. His name and his flag continue to inspire Albanian pride and unity.",
+            questions: [
+                { q: "Skanderbeg's real name was Gjergj Kastrioti.", a: true },
+                { q: "He was trained as a soldier by the Ottoman Empire as a child.", a: true },
+                { q: "He raised the flag with a double-headed eagle in 1443.", a: true },
+                { q: "Skanderbeg protected Albania for exactly five years.", a: false },
+                { q: "The Pope referred to him as the 'Athlete of Christ'.", a: true },
+                { q: "He died in battle against the Ottoman forces in 1468.", a: false }
+            ]
+        },
+        {
+            title: "Spartacus",
+            text: "Spartacus was a famous gladiator and a leader in the Roman Republic. At that time, Rome had a big empire with many slaves. Roman masters treated these slaves very badly. They forced them to work hard and fight games for fun. Spartacus was a man from Thrace. The Romans captured him and sent him to a gladiator school in Capua. In 73 BC, Spartacus led a group of about 70 gladiators. They escaped from their school using kitchen knives. They went to Mount Vesuvius, a big volcano. Many other slaves joined them there. The Roman government sent armies to stop them. At first, Spartacus defeated every Roman army. He moved through Italy and freed thousands of slaves. His army became very large. Spartacus was a smart military leader. He taught his followers to fight like real soldiers. He won big battles against Roman leaders. The Romans became very worried. They sent a general named Crassus with a huge army. After several fights, Crassus finally defeated Spartacus in 71 BC. Spartacus died in the final battle, but nobody found his body. The Romans captured about 6,000 rebels. They put them on crosses along the road to warn other slaves. Today, people remember Spartacus as a symbol of freedom.",
+            questions: [
+                { q: "Spartacus was a gladiator originally from the region of Thrace.", a: true },
+                { q: "The gladiators escaped using swords stolen from the Roman armory.", a: false },
+                { q: "The rebels used Mount Vesuvius as their first hiding place.", a: true },
+                { q: "General Crassus was the leader who finally defeated Spartacus.", a: true },
+                { q: "Spartacus was captured and put on a cross in 71 BC.", a: false },
+                { q: "About 6,000 rebels were crucified along the Roman roads.", a: true }
+            ]
+        },
+        {
+            title: "Stefan Dušan",
+            text: "King Stefan Dušan ruled Serbia from 1331 to 1355. He built a strong Serbian Empire while the Ottoman Turks were growing powerful in the east. The Ottomans were taking land from the Byzantine Empire. Dušan used this situation to expand his own territory, capturing parts of Macedonia and Greece. Dušan recognized the Ottoman threat. He tried to form alliances with other Christian nations to stop them. He spoke with the Pope and Venice about creating a united army against the Ottomans. He also made agreements with the Ottomans when it suited him. Sometimes he hired Ottoman soldiers for his army. Other times he made peace treaties with them. Dušan's main goal was to capture Constantinople before the Ottomans could. He wanted to create a Christian empire strong enough to resist the Ottomans. However, Dušan died suddenly in 1355. After his death, his empire weakened and became divided. Without his leadership, later Serbian rulers could not stop the Ottomans. Just 34 years after Dušan's death, the Ottomans defeated the Serbs at the Battle of Maritsa, beginning their control over Serbian lands.",
+            questions: [
+                { q: "Stefan Dušan expanded the Serbian Empire into Macedonia and Greece.", a: true },
+                { q: "He never communicated with the Pope or Venice.", a: false },
+                { q: "Dušan sometimes hired Ottoman soldiers for his own army.", a: true },
+                { q: "His ultimate goal was to capture the city of Constantinople.", a: true },
+                { q: "Dušan's empire became much stronger after his death in 1355.", a: false },
+                { q: "The Battle of Maritsa took place 34 years after Dušan died.", a: true }
+            ]
+        },
+        {
+            title: "Taras Bulba",
+            text: "Taras Bulba was a famous Cossack warrior in Ukraine during the 1500s. At that time, Poland ruled parts of Ukraine. The Cossack people wanted to be free and keep their traditions. The Polish rulers treated them very badly. They took Cossack land and did not respect their religion. This made Taras and his people very angry. Taras had two sons, Andriy and Ostap. They went to school in Kyiv, but Taras wanted them to be strong soldiers. When they returned home, he took them to the Cossack army camp. They started to fight against the Polish army. Taras was a brave leader and won many battles. However, a sad thing happened during a fight. His younger son, Andriy, fell in love with a Polish woman. He left his own people to join the enemy. Taras was furious at this betrayal. He caught Andriy and killed him. He famously said, 'I gave you life, and I will take it away.' Later, the Polish soldiers caught his older son, Ostap. They killed him in the city of Warsaw. Taras watched his son die but could not save him. Taras continued to fight, but the Polish army finally caught and killed him. Today, people remember Taras Bulba as a hero.",
+            questions: [
+                { q: "Taras Bulba was a warrior fighting for the Polish king.", a: false },
+                { q: "The Cossacks were angry because their religion and land were not respected.", a: true },
+                { q: "Taras's sons, Andriy and Ostap, were educated in Kyiv.", a: true },
+                { q: "Taras killed his son Andriy because he fell in love with a Polish woman.", a: true },
+                { q: "Ostap was killed in the city of Warsaw.", a: true },
+                { q: "Taras Bulba survived the war and lived a long life as a farmer.", a: false }
+            ]
+        },
+        {
+            title: "Tariq ibn Ziyad",
+            text: "Tariq ibn Ziyad was a famous Muslim commander in the 700s. At that time, the Visigoth kingdom ruled Spain. The people of North Africa wanted to go across the Mediterranean Sea. The Visigoth king, Roderick, was a harsh ruler. There were many problems inside his kingdom, and some rich nobles were not happy with him. This situation was good for Tariq ibn Ziyad. He was a governor in North Africa. In 711 AD, he led an army of about 7,000 soldiers across the water between Africa and Europe. He landed at a large rock. Later, people named it 'Jabal Tariq,' or the Mountain of Tariq. Today, we know it as Gibraltar. When his soldiers arrived, Tariq ordered them to burn their boats. He told his army: 'The sea is behind you, and the enemy is before you.' This brave speech helped his soldiers feel strong. Tariq’s army fought King Roderick at the Battle of Guadalete. Although the Visigoth army was much larger, Tariq used better plans. The unhappy Visigoth nobles also helped him win. King Roderick died in this fight. After this victory, Tariq took important cities like Cordoba and Toledo. His success began Muslim rule in Spain for nearly 800 years. Today, the name Gibraltar still remembers him.",
+            questions: [
+                { q: "Tariq ibn Ziyad crossed from Africa to Europe in 711 AD.", a: true },
+                { q: "The name 'Gibraltar' is derived from 'Jabal Tariq'.", a: true },
+                { q: "Tariq ordered his soldiers to build more boats after landing.", a: false },
+                { q: "The Visigoth army was smaller than Tariq's army.", a: false },
+                { q: "King Roderick was killed at the Battle of Guadalete.", a: true },
+                { q: "Tariq's victory led to 800 years of Muslim rule in Spain.", a: true }
+            ]
+        },
+        {
+            title: "Timur (Tamerlane)",
+            text: "Timur, also called Tamerlane, was a powerful ruler and warrior from Central Asia. He was born in 1336. He created a large empire through many wars. He wanted to control all the lands along the Silk Road. He fought and defeated many kings. His army was known for being very strong and very cruel. His most famous battle was against the Ottoman Empire. The Ottoman Sultan was named Yıldırım Bayezid. Bayezid was also a great conqueror and had a powerful army. The two armies met at the Battle of Ankara in 1402. The fighting was long and fierce in the very hot sun. Timur was a more clever military leader. He knew that some soldiers in Bayezid's army were unhappy. He convinced them to switch sides during the battle. This was the turning point. Timur won the battle. His army captured Sultan Bayezid. Bayezid became Timur's prisoner. The capture of the great Ottoman Sultan was a huge shock to the world. It stopped the growth of the Ottoman Empire for a time. After his victory, Timur continued traveling and conquering new lands. He took the captured Sultan Bayezid with him as he moved from place to place. Bayezid died while he was still Timur's prisoner. Timur died in 1405 while planning to invade China. His death saved China from his attack. Timur was one of history's greatest conquerors, also a brutal leader who showed no mercy to his enemies.",
+            questions: [
+                { q: "Timur aimed to control the lands along the Silk Road.", a: true },
+                { q: "The Battle of Ankara took place in 1402.", a: true },
+                { q: "Timur won the battle because he had a much larger army than Bayezid.", a: false },
+                { q: "Sultan Bayezid died in battle against Timur's forces.", a: false },
+                { q: "The capture of Bayezid temporarily slowed the growth of the Ottoman Empire.", a: true },
+                { q: "Timur successfully conquered China before he died in 1405.", a: false }
+            ]
+        },
+        {
+            title: "Tomyris",
+            text: "Tomyris was the queen of the Massagetae, a strong group in Central Asia around 530 BC. She became the leader after her husband died. At this time, Cyrus the Great was the King of Persia. He was very powerful and wanted to take her land. Cyrus sent a message to marry Tomyris, but she knew this was a trick to take her kingdom. She refused him, so Cyrus decided to attack. He crossed a river to fight her army, which was led by her son. The Persians used a clever plan. They left a camp full of wine and food. The Massagetae soldiers did not know wine well. They drank too much and fell asleep. The Persians attacked while they were sleeping and captured Tomyris's son. He felt great shame as a prisoner and killed himself. Tomyris was very angry and wanted revenge. She gathered all her soldiers for a second big battle later in 530 BC. The fight was very hard, but the Massagetae army won. King Cyrus died in the battle. After the fight, Tomyris found his body. She cut off his head and put it in a bag of blood. She was a brave queen who defended her people.",
+            questions: [
+                { q: "Tomyris was the queen of the Massagetae in Central Asia.", a: true },
+                { q: "Cyrus the Great wanted to marry Tomyris to unite their kingdoms peacefully.", a: false },
+                { q: "Tomyris's son was captured after his soldiers drank too much wine.", a: true },
+                { q: "Tomyris's son escaped from the Persian prison and joined his mother.", a: false },
+                { q: "King Cyrus died in the second big battle of 530 BC.", a: true },
+                { q: "Tomyris placed Cyrus's head in a bag of blood after the battle.", a: true }
+            ]
+        },
+        {
+            title: "Turgut Reis",
+            text: "Born into a poor family in Muğla, Turgut Reis began as a young sailor and quickly rose to become a skilled captain. He eventually joined forces with the famous Admiral Barbarossa Hayreddin in Algeria. In 1538, Turgut played a key role leading the reserve fleet at the Battle of Preveza. However, while fighting near Corsica, he was captured by the Genoese and spent three years as a prisoner before Barbarossa rescued him. Upon regaining his freedom, Turgut built a new fleet and terrorized Spanish waters near Naples. He established a base on Djerba Island, where he famously escaped a Spanish siege by transporting his ships overland to the opposite coast. In 1551, Turgut was named Governor of Karli. Sultan Suleiman promised him rule over Tripoli if he helped capture it. Although the campaign succeeded, the position was initially given to another, leading a disappointed Turgut back to the sea. He finally received the Governorship of Tripoli in 1554 after bringing immense treasure to Istanbul. He continued to serve the Ottoman Empire, fighting at the Battle of Djerba in 1560. Turgut Reis ultimately fell in battle during the Siege of Malta in 1565; his tomb stands in Tripoli today.",
+            questions: [
+                { q: "Turgut Reis was born into a wealthy family in Istanbul.", a: false },
+                { q: "He spent three years as a prisoner of the Genoese.", a: true },
+                { q: "Turgut escaped a siege on Djerba by moving his ships overland.", a: true },
+                { q: "Sultan Suleiman immediately made Turgut the Governor of Tripoli.", a: false },
+                { q: "Turgut Reis fought in the Battle of Djerba in 1560.", a: true },
+                { q: "He died during the Siege of Malta in 1565.", a: true }
+            ]
+        },
+        {
+            title: "Vlad III (Dracula)",
+            text: "Vlad III was a prince born in 1431. He ruled Wallachia, which is in Romania today. His father belonged to a special group called the Order of the Dragon. Because of this, people called Vlad 'Dracula,' which means 'son of the dragon.' When Vlad was a child, his father sent him and his brother Radu to the Ottoman Empire. They were hostages to ensure peace. They lived with Sultan Murad II and his son, Mehmed. The boys learned the Turkish language and how to fight in wars. Vlad was not happy there. He felt like a prisoner and was very angry at the Ottomans. However, his brother Radu liked Mehmed, and they became friends. This eventually made the two brothers enemies. Later, Vlad became the ruler of Wallachia. He was a strict leader and became famous as 'Vlad the Impaler.' He fought against the Ottomans, even though he lived with them before. When Sultan Mehmed started a big war, Vlad fought back hard. He attacked at night to surprise them. He also burned villages and food so the Ottoman army had nothing to eat. But he lost the war. His brother Radu became the new prince with Mehmed's help. Vlad died in a battle near Bucharest in 1476. The Ottomans cut off his head and sent it to Sultan Mehmed as proof.",
+            questions: [
+                { q: "The name 'Dracula' means 'son of the dragon'.", a: true },
+                { q: "Vlad and his brother Radu were sent to the Ottomans as hostages.", a: true },
+                { q: "Vlad and Radu both hated the Ottomans during their time there.", a: false },
+                { q: "Vlad the Impaler used night attacks to surprise the Ottoman army.", a: true },
+                { q: "Radu replaced Vlad as the prince of Wallachia with Mehmed's help.", a: true },
+                { q: "Vlad died of old age in a castle near Bucharest.", a: false }
+            ]
+        },
+        {
+            title: "William Tell",
+            text: "William Tell was a famous hunter in Switzerland during the early 1300s. At that time, Austria ruled the Swiss lands. The Swiss people wanted their freedom. An Austrian ruler named Gessler arrived. He was a harsh man. To show his power, he put his hat on a pole in Altdorf's main square. He ordered everyone to bow before the hat. One day, William Tell and his son walked through the square. They did not bow to the hat. Soldiers arrested Tell and brought him to Gessler. Gessler knew Tell was an excellent crossbow shooter. He created a cruel test. He ordered Tell's son to stand before a tree with an apple on his head. Tell had to shoot the apple. Success meant freedom. Failure meant death. Tell took two arrows. He used one arrow to shoot the apple perfectly. His son was safe. Gessler asked about the second arrow. Tell answered, 'If I had hurt my son, the second arrow was for you.' Gessler ordered Tell's arrest. Soldiers put Tell on a boat to a prison. A storm came on the lake. The frightened Austrians freed Tell to steer the boat. Tell guided the boat to shore and escaped. Later, Tell used his second arrow against Gessler. This action inspired the Swiss rebellion. The Swiss people fought and won their independence.",
+            questions: [
+                { q: "William Tell was a hunter from Austria.", a: false },
+                { q: "Gessler ordered the people to bow to his hat on a pole.", a: true },
+                { q: "Tell was forced to shoot an apple off his son's head with a bow.", a: true },
+                { q: "Tell succeeded in shooting the apple with his first arrow.", a: true },
+                { q: "Tell escaped from a boat during a storm on a lake.", a: true },
+                { q: "The second arrow was intended for Gessler's son.", a: false }
+            ]
+        },
+        {
+            title: "William Wallace",
+            text: "William Wallace was a famous fighter in Scotland during the late 1200s. At that time, England ruled Scotland, and the Scottish people wanted their freedom. An English ruler named Edward I was very powerful. He placed English soldiers in Scottish towns to control the people. One day, English soldiers attacked Wallace's town and killed his wife. This made Wallace very angry. He decided to fight against the English. He gathered other Scots who wanted freedom and became their leader. They attacked English forts across Scotland. Their most important victory was at the Battle of Stirling Bridge in 1297. However, the English king sent a large army to stop Wallace. At the Battle of Falkirk in 1298, the English army defeated Wallace's forces. Wallace had to escape and hide, but he continued to fight for Scottish freedom for several years. Another Scottish noble, Robert the Bruce, later became the main leader. In 1305, English soldiers captured Wallace. They brought him to London for a trial. The court found him guilty of fighting against the king. They executed him in a cruel way, but he is still remembered as a hero.",
+            questions: [
+                { q: "William Wallace fought for Scottish independence against King Edward I.", a: true },
+                { q: "The killing of Wallace's wife inspired him to fight the English.", a: true },
+                { q: "Wallace's biggest victory was the Battle of Falkirk.", a: false },
+                { q: "The Battle of Stirling Bridge took place in 1297.", a: true },
+                { q: "Wallace was captured and executed in Scotland.", a: false },
+                { q: "Robert the Bruce became the main leader after Wallace's defeat.", a: true }
+            ]
+        },
+        {
+            title: "Yusuf Pasha",
+            text: "In 1788, a large Austrian army of about 100,000 soldiers camped in Romania to fight the Ottoman commander Yusuf Pasha. However, they never fought the enemy. Because of a foolish mistake and alcohol, the army destroyed itself. The trouble began one night when Austrian horsemen crossed a river and bought strong drinks from local people. They drank too much. When foot soldiers arrived and asked to share the drink, the horsemen refused. A big fight started between them, and someone fired a gun. This loud shot made the soldiers panic and run back toward their main camp in the dark. In the camp, soldiers woke up to the noise. They believed the enemy was attacking. Commanders shouted 'Halt!'—which means stop in German—to control their men. However, soldiers who spoke different languages heard 'Allah!' instead of 'Halt!' They were very afraid and fired guns and cannons at their own friends. Two days later, Yusuf Pasha arrived for a battle. Instead, he found dead and wounded Austrian soldiers everywhere. The survivors had escaped, so the Ottomans took the town easily. They won the victory because of the Austrian army's total confusion.",
+            questions: [
+                { q: "The Austrian army destroyed itself without fighting Yusuf Pasha's men.", a: true },
+                { q: "A fight over strong drinks started between horsemen and foot soldiers.", a: true },
+                { q: "The panic began because a spy fired a gun in the camp.", a: false },
+                { q: "Soldiers mistook the German word 'Halt' for 'Allah'.", a: true },
+                { q: "The Austrian army was larger than 100,000 soldiers.", a: false },
+                { q: "Yusuf Pasha arrived two days after the internal conflict.", a: true }
+            ]
+        }
+    ];
+
+    // ============================================================
+    //   HISTORY ENGINE (PINE GREEN & FINAL)
+    // ============================================================
+
+    function renderList() {
+        if (!list) return;
+        list.innerHTML = db.map((item, i) => {
+            if (currentMode === 'learn') {
+                return `
+                    <div class="card" style="border-left:5px solid #01796F;">
+                        <div class="card-title">${item.title}</div>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="playAudioOnly(${i})" style="flex:1; padding:12px; background:#333; color:#fff; border:1px solid #555; border-radius:8px; cursor:pointer; font-weight:bold;">🔊 Listen</button>
+                            <button onclick="openReadMode(${i})" style="flex:1; padding:12px; background:#01796F; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">📜 Read Story</button>
+                        </div>
+                    </div>`;
+            } else {
+                return `
+                    <div class="card" onclick="openQuizMode(${i})" style="cursor:pointer; border-left: 5px solid #9C27B0;">
+                        <div class="card-title">${item.title}</div>
+                        <div style="font-size:12px; color:#aaa; margin-top:5px;">Tap to start History Quiz 🧠</div>
+                    </div>`;
+            }
+        }).join('');
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-learn').className = (mode === 'learn') ? 'toggle-btn active' : 'toggle-btn';
+        document.getElementById('btn-quiz').className = (mode === 'quiz') ? 'toggle-btn active' : 'toggle-btn';
+        if(modal.style.display === "block") {
+            document.getElementById('view-learn').style.display = (mode === 'learn') ? 'block' : 'none';
+            document.getElementById('view-quiz').style.display = (mode === 'quiz') ? 'block' : 'none';
+        }
+        renderList();
+    }
+
+    function playSmartAudio(title) {
+        const USER = "dogierez01"; 
+        const REPO = "historic-people-t-f"; 
+        const BASE_URL = `https://raw.githubusercontent.com/${USER}/${REPO}/main/`;
+        
+        const fileName = encodeURIComponent(title.toLowerCase() + ".wav");
+        player.src = BASE_URL + fileName;
+        player.playbackRate = isSlowMode ? 0.8 : 1.0;
+        player.play().catch(e => console.log("Audio logic active. Waiting for file upload..."));
+    }
+
+    function playAudioOnly(i) { playSmartAudio(db[i].title); }
+
+    function openReadMode(i) {
+        const item = db[i];
+        modal.style.display = "block";
+        document.getElementById('story-title').innerText = item.title;
+        document.getElementById('view-learn').style.display = 'block';
+        document.getElementById('view-quiz').style.display = 'none';
+        document.getElementById('story-text').innerText = item.text;
+        playSmartAudio(item.title);
+    }
+
+    function openQuizMode(i) {
+        const item = db[i];
+        modal.style.display = "block";
+        document.getElementById('story-title').innerText = item.title + " Quiz";
+        document.getElementById('view-learn').style.display = 'none';
+        document.getElementById('view-quiz').style.display = 'block';
+        player.pause(); 
+        document.getElementById('quiz-area').innerHTML = item.questions.map((q, idx) => `
+            <div class="quiz-q">
+                <div style="font-weight:bold; margin-bottom:10px;">${idx+1}. ${q.q}</div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-tf btn-true" onclick="checkAnswer(this, ${q.a}, true)">TRUE</button>
+                    <button class="btn-tf btn-false" onclick="checkAnswer(this, ${q.a}, false)">FALSE</button>
+                </div>
+                <div class="feedback"></div>
+            </div>`).join('');
+    }
+
+    function checkAnswer(btn, ans, userAns) {
+        const fb = btn.parentElement.parentElement.querySelector('.feedback');
+        if (ans === userAns) { fb.innerText = "✅ CORRECT!"; fb.style.color = "#2ecc71"; }
+        else { fb.innerText = "❌ WRONG!"; fb.style.color = "#e74c3c"; }
+    }
+
+    function closeModal() { modal.style.display = "none"; player.pause(); }
+
+    function toggleSnail() {
+        isSlowMode = !isSlowMode;
+        player.playbackRate = isSlowMode ? 0.8 : 1.0;
+        snailBtn.classList.toggle('active');
+    }
+
+    function startApp() {
+        const screen = document.getElementById('welcome-screen');
+        if(screen) {
+            screen.style.opacity = '0';
+            setTimeout(() => { screen.style.display = 'none'; }, 800);
+        }
+    }
+
+    renderList();
+</script>
+</body>
+</html>
