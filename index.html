@@ -8,7 +8,7 @@
         body { font-family: sans-serif; background: #000; color: #e0e0e0; margin: 0; padding: 0; overflow-x: hidden; }
         
         /* 1. FRONT DOOR STYLES */
-        #front-door { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: opacity 0.5s ease; }
+        #front-door { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10001; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: opacity 0.5s ease; }
         .neon-ring { width: 300px; height: 300px; border-radius: 50%; border: 4px solid #01796F; box-shadow: 0 0 20px #01796F; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
         .logo-img { width: 230px; height: 230px; border-radius: 50%; object-fit: cover; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 30px #01796F; } 100% { transform: scale(1); opacity: 0.8; } }
@@ -88,6 +88,23 @@
     let currentMode = 'learn'; 
     let isSlowMode = false;
 
+    // --- TRANSITION FUNCTIONS ---
+    function openWelcome() {
+        const door = document.getElementById('front-door');
+        const welcome = document.getElementById('welcome-screen');
+        door.style.opacity = "0";
+        setTimeout(() => {
+            door.style.display = "none";
+            welcome.style.display = "flex";
+        }, 500);
+    }
+
+    function startApp() {
+        const screen = document.getElementById('welcome-screen');
+        screen.style.opacity = '0';
+        setTimeout(() => { screen.style.display = 'none'; }, 800);
+    }
+
     const db = [
         {
             title: "Alexander the Great",
@@ -103,7 +120,7 @@
         },
         {
             title: "Baltacı Mehmet Pasha",
-            text: "Baltacı Mehmet Pasha was an Ottoman grand vizier in the early 18th century. He is best known for his role in the Prut War between the Ottoman Empire and Russia in 1711. At that time, Russia was growing stronger under Tsar Peter the Great. The Ottomans, with the help of the Crimean Tatars, marched to stop them. Baltacı Mehmet Pasha led the Ottoman army to the Prut River, where they surrounded the Russian forces. The Russians were trapped, hungry, and weak. It seemed that the Ottomans were ready for a great victory. Although the army had the chance to destroy the Russians, Baltacı Mehmet Pasha accepted peace. With the Treaty of Prut, Russia gave back the city of Azov and promised to stay away from Ottoman lands. Peter the Great and his army were allowed to leave safely. Some people praised Baltacı Mehmet Pasha for avoiding more bloodshed. Others blamed him for not using the chance to defeat Russia completely. After this, his career lost strength, but the Treaty of Prut remained an important event in Ottoman history.",
+            text: "Baltacı Mehmet Pasha was an Ottoman grand vizier in the early 18th century. He is best known for his role in the Prut War between the Ottoman Empire and Russia in 1711. At that time, Russia was growing stronger under Tsar Peter the Great. The Ottomans, with the help of the Crimson Tatars, marched to stop them. Baltacı Mehmet Pasha led the Ottoman army to the Prut River, where they surrounded the Russian forces. The Russians were trapped, hungry, and weak. It seemed that the Ottomans were ready for a great victory. Although the army had the chance to destroy the Russians, Baltacı Mehmet Pasha accepted peace. With the Treaty of Prut, Russia gave back the city of Azov and promised to stay away from Ottoman lands. Peter the Great and his army were allowed to leave safely. Some people praised Baltacı Mehmet Pasha for avoiding more bloodshed. Others blamed him for not using the chance to defeat Russia completely. After this, his career lost strength, but the Treaty of Prut remained an important event in Ottoman history.",
             questions: [
                 { q: "The Prut War took place in the early 18th century.", a: true },
                 { q: "The Ottoman army was supported by Crimean Tatars in this war.", a: true },
@@ -201,7 +218,7 @@
             title: "Halil Pasha",
             text: "The Siege of Kut al-Amara was one of the greatest Ottoman victories in World War I. It took place in Mesopotamia, today's Iraq, between December 1915 and April 1916. A British army of about 13,000 soldiers, led by General Townshend, entered the town of Kut after a defeat at Ctesiphon. The Ottomans, under the command of Halil Pasha, surrounded the town and cut off supplies. The British hoped that new troops would arrive to save them, but Ottoman forces stopped every attempt. Although the British army was better equipped, hunger and disease became stronger enemies inside the town. After 147 days of resistance, General Townshend surrendered on 29 April 1916. More than 13,000 British and Indian soldiers were taken as prisoners. This victory gave the Ottoman Empire great pride. It showed that the empire could still fight strongly against a world power. For the British, it was one of the worst defeats in their military history. For the Ottomans, Kut al-Amara became a symbol of courage and resistance in the dark days of World War I.",
             questions: [
-                { q: "The Siege of Kut al-Amara took place in modern-day Turkey.", a: false },
+                { q: "The Siege of Kut al-Amara took place in modern-day Iraq.", a: false },
                 { q: "General Townshend led the British forces at Kut.", a: true },
                 { q: "The siege lasted for a total of 147 days.", a: true },
                 { q: "British supplies were cut off by Halil Pasha's forces.", a: true },
